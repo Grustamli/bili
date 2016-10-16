@@ -61,6 +61,7 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'bili.urls'
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
