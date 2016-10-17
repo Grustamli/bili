@@ -18,7 +18,7 @@ class PhoneNumber(models.Model):
     number = models.CharField(max_length=15, validators=[phone_regex], blank=True)
 
     def __str__(self):
-        return self.nu
+        return self.number
 
 class Address(models.Model):
     address = models.CharField(max_length=150)
@@ -37,3 +37,14 @@ class Favourites(models.Model):
 
     class Meta:
         unique_together = ('user', 'ad')
+
+# Creating models for categories
+class MainCategory(models.Model):
+    name = models.CharField(max_length=50)
+
+
+class SecondaryCategory(models.Model):
+    name = models.CharField(max_length=50)
+
+
+class

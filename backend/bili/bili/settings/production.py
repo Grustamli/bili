@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from .base import *
 
-DEBUG = True
+DEBUG = False
 
-# ALLOWED_HOSTS = [‘biliapp.herokuapp.com’]
+ALLOWED_HOSTS=["biliapp.herokuapp.com"]
 
 DATABASES = {
     'default': {
@@ -16,9 +16,8 @@ DATABASES = {
     }
 }
 
-# import dj_database_url
-#
-# DATABASES[‘default’] = dj_database_url.config()
+import dj_database_url
+DATABASES["default"]=dj_database_url.config()
 # SECURE_PROXY_SSL_HEADER = (‘HTTP_X_FORWARDED_PROTO’, ‘https’)
 #
 # STATIC_URL = ‘/static/’
