@@ -3,16 +3,18 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.template.defaultfilters import slugify
 from .user import Person
+from .categories import SubCategory
+import datetime
 
 class Ad(models.Model):
     user = models.ForeignKey(Person, on_delete=models.CASCADE)
     title = models.CharField(max_length=250, blank=False)
     description = models.TextField()
-    price = models.CharField(max_length=25,)
-    published = models.DateTimeField(auto_now=True)
+    price = models.IntegerField(default=0)
+    published = models.DateTimeField('publish date', auto_now_add=True)
     active_since = models.DateField(blank=True, null=True)
     slug = models.SlugField(blank=True)
-
+    category=models.ForeignKey(SubCategory, related_name='ads')
     def __str__(self):
         return self.title
 
@@ -26,10 +28,8 @@ class Ad(models.Model):
 class AdImage(models.Model):
     ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
     def user_directory_path(instance, filename):
-        # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-        user = str(instance.ad.user.id) + '-' + instance.ad.user.first_name + '-' + instance.ad.user.last_name
         ad_name = instance.ad.title
-        return 'ads/images/{0}/{1}/{2}'.format(user,ad_name,filename)
+        return 'ads/{0}/{1}'.format(ad_name,filename)
 
 
     image = models.ImageField(upload_to=user_directory_path)
