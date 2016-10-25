@@ -17,15 +17,21 @@ class Property(models.Model):
         ('COMMERCIAL', 'Commercial'),
         ('UNKNOWN', 'Unknown')
     )
-    STATUS=(
+    STATUS_CHOICES=(
     ('RENT', 'Rent'),
     ('SALE', 'Sale'),
     ('SHARE', 'Share')
     )
+    PAYMENT_CHOICES=(
+    ('DAILY', 'Daily'),
+    ('WEEKLY', 'Weekly'),
+    ('MONTHLY','Monthly')
+    )
     ad = models.OneToOneField(Ad,related_name='property')
     kind = models.CharField(max_length=10, choices=TYPE_CHOICES)
-    status = models.CharField(max_length=7, choices=STATUS)
+    status = models.CharField(max_length=7, choices=STATUS_CHOICES)
     no_bed_room = models.IntegerField(blank=True, null=True)
     area = models.DecimalField(max_digits=9, decimal_places=3, blank=True, null=True)
+    payment = models.CharField(max_length=7, choices=PAYMENT_CHOICES, default=PAYMENT_CHOICES[2][1])
     def __str__(self):
         return self.ad.title

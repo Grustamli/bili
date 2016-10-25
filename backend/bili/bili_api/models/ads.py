@@ -12,9 +12,10 @@ class Ad(models.Model):
     description = models.TextField()
     price = models.IntegerField(default=0)
     published = models.DateTimeField('publish date', auto_now_add=True)
-    active_since = models.DateField(blank=True, null=True)
+    active_from = models.DateField(blank=True, null=True)
     slug = models.SlugField(blank=True)
-    category=models.ForeignKey(SubCategory, related_name='ads')
+    category = models.ForeignKey(SubCategory, related_name='ads')
+    spotlight = models.NullBooleanField()
     def __str__(self):
         return self.title
 
