@@ -27,7 +27,7 @@ class Ad(models.Model):
 
 
 class AdImage(models.Model):
-    ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
+    ad = models.ForeignKey(Ad, on_delete=models.CASCADE, related_name='images')
     def user_directory_path(instance, filename):
         ad_name = instance.ad.title
         return 'ads/{0}/{1}'.format(ad_name,filename)
@@ -37,8 +37,8 @@ class AdImage(models.Model):
     def __str__(self):
         return self.ad.title
 
-class Favourites(models.Model):
-    user = models.ForeignKey(Person, on_delete=models.CASCADE)
+class Favourite(models.Model):
+    user = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='favourites')
     ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
 
     class Meta:
