@@ -7,25 +7,6 @@ from django.contrib.auth.models import User
 
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'password')
-
-
-
-class ProfileSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model = Person
-        fields = ('user', 'first_name', 'last_name', 'email', 'phone_numbers', 'addresses',
-        'favourites')
-
-
-class AddressSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Address
-
 
 class PhoneNumberSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -33,12 +14,37 @@ class PhoneNumberSerializer(serializers.HyperlinkedModelSerializer):
 
 
 
-# Serializers for ads
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Person
+        fields = ('url','username','email', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+
+class PersonSerializer(serializers.HyperlinkedModelSerializer):
+    phone_numbers = PhoneNumberSerializer(many=True)
+    addresses = AddressSerializer(many=True)
+    class Meta:
+        model = Person
+        fields = ('first_name', 'last_name', 'email', 'phone_numbers', 'addresses')
+
+class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Person
+        fields = ('first_name', 'last_name', 'email', 'phone_numbers', 'addresses',
+        'favourites', 'ads')
+
+
+class AddressSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Address
+
 
 class AdDisplaySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Ad
-        fields = ('user', 'title' , 'description' , 'price', 'published', 'active_from',
+        fields = ('person', 'title' , 'description' , 'price', 'published', 'active_from',
         'slug', 'category', 'spotlight', 'images')
 
 
@@ -53,6 +59,7 @@ class FavouriteSerializer(serializers.HyperlinkedModelSerializer):
         model = Favourite
 
 
+# can implement later
 class CategoryListSerializer(serializers.ModelSerializer):
     subcategories = serializers.StringRelatedField(many=True)
     main_category = serializers.StringRelatedField()

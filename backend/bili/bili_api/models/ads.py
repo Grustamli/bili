@@ -7,7 +7,7 @@ from .categories import SubCategory
 import datetime
 
 class Ad(models.Model):
-    user = models.ForeignKey(Person, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
     title = models.CharField(max_length=250, blank=False)
     description = models.TextField()
     price = models.IntegerField(default=0)
@@ -38,8 +38,8 @@ class AdImage(models.Model):
         return self.ad.title
 
 class Favourite(models.Model):
-    user = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='favourites')
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='favourites')
     ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('user', 'ad')
+        unique_together = ('person', 'ad')
