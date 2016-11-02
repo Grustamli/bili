@@ -7,14 +7,14 @@ from .categories import SubCategory
 import datetime
 
 class Ad(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='ads')
+    category = models.ForeignKey(SubCategory, related_name='ads')
     title = models.CharField(max_length=250, blank=False)
     description = models.TextField()
     price = models.IntegerField(default=0)
     published = models.DateTimeField('publish date', auto_now_add=True)
     active_from = models.DateField(blank=True, null=True)
     slug = models.SlugField(blank=True)
-    category = models.ForeignKey(SubCategory, related_name='ads')
     spotlight = models.NullBooleanField()
     def __str__(self):
         return self.title
@@ -43,3 +43,11 @@ class Favourite(models.Model):
 
     class Meta:
         unique_together = ('person', 'ad')
+
+
+
+class Message(models.Model):
+    sender = models.ForeignKey(Person, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(Person, related_name='received_messages', on_delete=models.CASCADE)
+    sent_time = models.DateTimeField(auto_now_add=True)
+    content = models.TextField()
