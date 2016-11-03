@@ -19,7 +19,7 @@ class PhoneNumber(models.Model):
     number = models.CharField(max_length=15, validators=[phone_regex], blank=True)
 
     @property
-    def user_username(self):
+    def person__username(self):
         return self.person.username
 
     def __str__(self):

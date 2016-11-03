@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+
 from .serializers import (
                         ProfileListSerializer,
                         ProfileDetailSerializer,
@@ -8,7 +9,11 @@ from .serializers import (
                         AddressListSerializer,
                         AddressDetailSerializer,
                         AdListSerializer,
-                        AdDetailSerializer
+                        AdDetailSerializer,
+                        AdImageListSerializer,
+                        AdImageDetailSerializer,
+                        FavouriteListSerializer,
+                        FavouriteDetailSerializer,
                         )
 
 from .models.user import (Person,
@@ -17,10 +22,15 @@ from .models.user import (Person,
                         )
 
 from .models.ads import (Ad,
+                        AdImage,
+                        Favourite
                         )
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 # Create your views here.
 # class UserViewSet(generics.ListCreateAPIView):
@@ -55,6 +65,17 @@ from rest_framework.response import Response
 #     queryset = Person.objects.all()
 #     serializer_class = ProfileSerializer
 #
+
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'profiles': reverse('profile-list', request=request, format=format),
+        'phonenumbers': reverse('phone-list', request=request, format=format),
+        'addresses': reverse('address-list', request=request, format=format),
+        'ads': reverse('ad-list', request=request, format=format),
+        'ad-images': reverse('adimage-list', request=request, format=format),
+        'favourites': reverse('favourite-list', request=request, format=format),
+    })
 
 class ProfileListView(generics.ListCreateAPIView):
     queryset = Person.objects.all()
@@ -97,3 +118,20 @@ class AdDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ad.objects.all()
     serializer_class = AdDetailSerializer
     lookup_field='slug'
+
+
+class AdImageListView(generics.ListCreateAPIView):
+    queryset = AdImage.objects.all()
+    serializer_class = AdImageListSerializer
+
+class AdImageDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = AdImage.objects.all()
+    serializer_class = AdImageDetailSerializer
+
+class FavoriteListView(generics.ListCreateAPIView):
+    queryset = Favourite.objects.all()
+    serializer_class = FavouriteListSerializer
+
+class FavouriteDetailView(generics.RetrieveDestroyAPIView):
+    queryset = Favourite.objects.all()
+    serializer_class = FavouriteDetailSerializer

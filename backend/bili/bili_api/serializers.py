@@ -10,18 +10,22 @@ from django.contrib.auth.models import User
 
 class PhoneNumberListSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='phone-detail')
-    person = serializers.HyperlinkedIdentityField(view_name='profile-detail', lookup_field='user_username')
+    person = serializers.HyperlinkedRelatedField(view_name='profile-detail',
+            queryset=Person.objects.all(),
+            lookup_field='username')
     class Meta:
         model = PhoneNumber
         fields = ('url','number','person')
 
 class PhoneNumberDetailSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='phone-detail')
-    # person = serializers.StringRelatedField(view_name='profile-detail')
+    person = serializers.HyperlinkedRelatedField(view_name='profile-detail',
+            lookup_field='username',
+            read_only=True)
 
     class Meta:
         model = PhoneNumber
-        fields = ('number','url')
+        fields = ('url','number', 'person')
 
 # class CreatePhoneNumberSerializer(serializers.HyperlinkedModelSerializer):
 #     class Meta:
@@ -31,16 +35,17 @@ class PhoneNumberDetailSerializer(serializers.ModelSerializer):
 
 class AddressListSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='address-detail')
-    person = serializers.HyperlinkedIdentityField(view_name='profile-detail',
-    lookup_field='username')
+    person = serializers.HyperlinkedRelatedField(view_name='profile-detail',
+            queryset=Person.objects.all(),
+            lookup_field='username')
     class Meta:
         model = Address
         fields = ('url', 'person', 'address', 'region', 'city')
 
 class AddressDetailSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='address-detail')
-    person = serializers.HyperlinkedIdentityField(view_name='profile-detail',
-    lookup_field='username')
+    person = serializers.HyperlinkedRelatedField(view_name='profile-detail',
+            lookup_field='username', read_only=True)
     class Meta:
         model = Address
         fields = ('url', 'person', 'address', 'region', 'city')
@@ -91,30 +96,72 @@ class ProfileDetailSerializer(serializers.HyperlinkedModelSerializer):
 
 class AdListSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ad-detail', lookup_field='slug')
-    # person = serializers.HyperlinkedIdentityField(view_name='profile-detail')
-
+    person = serializers.HyperlinkedRelatedField(view_name='profile-detail',
+            queryset=Person.objects.all(),
+            lookup_field='username')
     class Meta:
         model = Ad
-        fields = ('url', 'title' , 'description' , 'price', 'published', 'active_from',
+        fields = ('url', 'person', 'title' , 'description' , 'price', 'published', 'active_from',
         'slug', 'spotlight',)
 
 class AdDetailSerializer(serializers.HyperlinkedModelSerializer):
-    # person = serializers.HyperlinkedIdentityField(view_name='profile-detail')
-
+    url = serializers.HyperlinkedIdentityField(view_name='ad-detail', lookup_field='slug')
+    person = serializers.HyperlinkedRelatedField(view_name='profile-detail',
+            lookup_field='username',
+            read_only=True)
     class Meta:
         model = Ad
-        fields = ('title' , 'description' , 'price', 'published', 'active_from',
+        fields = ('url','person', 'title' , 'description' , 'price', 'published', 'active_from',
         'slug', 'spotlight')
 
-class AdImageSerializer(serializers.HyperlinkedModelSerializer):
+
+
+class AdImageListSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='adimage-detail')
+    ad = serializers.HyperlinkedRelatedField(view_name='ad-detail',
+            queryset=Ad.objects.all(),
+            lookup_field='slug')
+
     class Meta:
-        model = AdImage
+        model= AdImage
+        fields = ('url', 'ad', 'image')
 
-
-
-class FavouriteSerializer(serializers.HyperlinkedModelSerializer):
+class AdImageDetailSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='adimage-detail')
+    ad = serializers.HyperlinkedRelatedField(view_name='ad-detail',
+            lookup_field='slug',
+            read_only=True)
     class Meta:
-        model = Favourite
+        model= AdImage
+        fields = ('url', 'ad', 'image')
+
+
+
+class FavouriteListSerializer(serializers.HyperlinkedModelSerializer):
+    person = serializers.HyperlinkedRelatedField(view_name='profile-detail',
+            queryset=Person.objects.all(),
+            lookup_field='username')
+    ad = serializers.HyperlinkedRelatedField(view_name='ad-detail',
+            queryset=Ad.objects.all(),
+            lookup_field='slug')
+    url = serializers.HyperlinkedIdentityField(view_name='favourite-detail')
+    class Meta:
+        model= Favourite
+        fields = ('url', 'person', 'ad')
+
+
+class FavouriteDetailSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='favourite-detail')
+    person = serializers.HyperlinkedRelatedField(view_name='profile-detail',
+            lookup_field='username',
+            read_only=True)
+    ad = serializers.HyperlinkedRelatedField(view_name='ad-detail',
+            lookup_field='slug',
+            read_only=True)
+    class Meta:
+        model= Favourite
+        fields = ('url', 'person', 'ad')
+
 
 
 # can implement later
