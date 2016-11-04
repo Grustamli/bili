@@ -1,6 +1,14 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
+from rest_framework import viewsets
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.decorators import (api_view, permission_classes)
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.permissions import (IsAdminUser, IsAuthenticatedOrReadOnly)
+
 from .serializers import (
                         ProfileListSerializer,
                         ProfileDetailSerializer,
@@ -14,59 +22,34 @@ from .serializers import (
                         AdImageDetailSerializer,
                         FavouriteListSerializer,
                         FavouriteDetailSerializer,
+                        CategorySerializer,
                         )
 
-from .models.user import (Person,
+from .models.user import (
+                        Person,
                         PhoneNumber,
                         Address,
                         )
 
-from .models.ads import (Ad,
+from .models.ads import (
+                        Ad,
                         AdImage,
                         Favourite
                         )
-from rest_framework import viewsets
-from rest_framework import generics
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
-# Create your views here.
-# class UserViewSet(generics.ListCreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer()
+from .models.categories import SubCategory
 
 
-# class RegisterViewSet(viewsets.ModelViewSet):
-#     queryset = Person.objects.all()
-#     serializer_class = RegisterSerializer
-    # lookup_field = 'username'
-    # def list(self, request):
-    #     queryset = Person.objects.all()
-    #     serializer = PersonSerializer(queryset, many=True, context={'request': request})
-    #     return Response(serializer.data)
-    #
-    # def retrieve(self, request, pk=None):
-    #     queryset = Person.objects.all()
-    #     person = get_object_or_404(queryset, pk=pk)
-    #     serializer = PersonSerializer(person, context={'request': request})
-    #     return Response(serializer.data)
-
-# class PhoneViewSet(viewsets.ModelViewSet):
-#     queryset = PhoneNumber.objects.all()
-#     serializer_class = PhoneNumberSerializer
-#
-# class AddressViewSet(viewsets.ModelViewSet):
-#     queryset = Address.objects.all()
-#     serializer_class = AddressSerializer
-
-# class ProfileViewSet(viewsets.ModelViewSet):
-#     queryset = Person.objects.all()
-#     serializer_class = ProfileSerializer
-#
+from .permissions import (
+                        IsOwnProfileOrReadOnly,
+                        IsOwnerOrReadOnly,
+                        IsAdOwnerOrReadOnly,
+                        IsOwner,
+                        CanOnlyCreate
+                        )
 
 @api_view(['GET'])
+# @permission_classes((IsAdminUser,))
 def api_root(request, format=None):
     return Response({
         'profiles': reverse('profile-list', request=request, format=format),
@@ -75,40 +58,66 @@ def api_root(request, format=None):
         'ads': reverse('ad-list', request=request, format=format),
         'ad-images': reverse('adimage-list', request=request, format=format),
         'favourites': reverse('favourite-list', request=request, format=format),
+        'categories': reverse('category-list', request=request, format=format),
+
     })
 
-class ProfileListView(generics.ListCreateAPIView):
+class ProfileListView(generics.ListAPIView):
+    queryset = Person.objects.all()
+    serializer_class = ProfileListSerializer
+    permission_classes=(IsAdminUser,)
+
+class ProfileCreateView(generics.CreateAPIView):
     queryset = Person.objects.all()
     serializer_class = ProfileListSerializer
 
-class ProfileDetailView(generics.RetrieveDestroyAPIView):
+class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Person.objects.all()
     serializer_class = ProfileDetailSerializer
     lookup_field = 'username'
+    permission_classes = (IsOwnProfileOrReadOnly,)
 
-# class AdViewSet(viewsets.ModelViewSet):
-#     queryset = Ad.objects.all()
-#     serializer_class = AdSerializer
 
-class PhoneNumberListView(generics.ListCreateAPIView):
+class PhoneNumberListView(generics.ListAPIView):
+    queryset = PhoneNumber.objects.all()
+    serializer_class = PhoneNumberListSerializer
+    permission_classes = (IsAdminUser,)
+
+
+class PhoneNumberCreateView(generics.CreateAPIView):
     queryset = PhoneNumber.objects.all()
     serializer_class = PhoneNumberListSerializer
 
 class PhoneNumberDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = PhoneNumber.objects.all()
     serializer_class = PhoneNumberDetailSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
 
 
-class AddressListView(generics.ListCreateAPIView):
+class AddressListView(generics.ListAPIView):
     queryset = Address.objects.all()
     serializer_class = AddressListSerializer
+    permission_classes = (IsAdminUser,)
+
+
+class AddressCreateView(generics.CreateAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressListSerializer
+
 
 class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Address.objects.all()
     serializer_class = AddressDetailSerializer
+    permission_classes = (IsOwnerOrReadOnly,)
 
 
-class AdListView(generics.ListCreateAPIView):
+class AdListView(generics.ListAPIView):
+    queryset = Ad.objects.all()
+    serializer_class = AdListSerializer
+    lookup_field='slug'
+
+
+class AdCreateView(generics.CreateAPIView):
     queryset = Ad.objects.all()
     serializer_class = AdListSerializer
     lookup_field='slug'
@@ -118,20 +127,44 @@ class AdDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ad.objects.all()
     serializer_class = AdDetailSerializer
     lookup_field='slug'
+    permission_classes = (IsOwnerOrReadOnly,)
 
 
-class AdImageListView(generics.ListCreateAPIView):
+class AdImageListView(generics.ListAPIView):
     queryset = AdImage.objects.all()
     serializer_class = AdImageListSerializer
+    permission_classes = (IsAdminUser,)
+
+class AdImageCreateView(generics.CreateAPIView):
+    queryset = AdImage.objects.all()
+    serializer_class = AdImageListSerializer
+
 
 class AdImageDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = AdImage.objects.all()
     serializer_class = AdImageDetailSerializer
+    permission_classes = (IsAdOwnerOrReadOnly,)
 
-class FavoriteListView(generics.ListCreateAPIView):
+class FavoriteListView(generics.ListAPIView):
     queryset = Favourite.objects.all()
     serializer_class = FavouriteListSerializer
+    permission_classes = (IsAdminUser,)
+
+class FavoriteCreateView(generics.CreateAPIView):
+    queryset = Favourite.objects.all()
+    serializer_class = FavouriteListSerializer
+
 
 class FavouriteDetailView(generics.RetrieveDestroyAPIView):
     queryset = Favourite.objects.all()
     serializer_class = FavouriteDetailSerializer
+    permission_classes = (IsOwner,)
+
+
+class CategoryListView(generics.ListAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = CategorySerializer
+
+class CategoryDetailView(generics.RetrieveAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = CategorySerializer
